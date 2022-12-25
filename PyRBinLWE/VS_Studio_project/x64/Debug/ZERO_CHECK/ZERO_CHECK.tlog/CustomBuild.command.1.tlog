@@ -1,0 +1,10 @@
+^D:\MPC-MOK\PROJECT\PYRBINLWE\VS_STUDIO_PROJECT\CMAKEFILES\96991011320BA1307F20A4F389C3DD1E\GENERATE.STAMP.RULE
+setlocal
+D:\tools\cmake\bin\cmake.exe -SD:/MPC-MOK/project/PyRBinLWE -BD:/MPC-MOK/project/PyRBinLWE/VS_Studio_project --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/MPC-MOK/project/PyRBinLWE/VS_Studio_project/PyRBinLWE.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

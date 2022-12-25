@@ -1,0 +1,8 @@
+﻿D:\tools\VS2022\IDE\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(514,5): warning MSB8028: промежуточный каталог (pybind11module.dir\Debug\) содержит файлы, которые используются совместно с другим проектом (pybind11module.vcxproj).  Это может привести к ошибкам очистки и перестроения.
+  Building Custom Rule D:/MPC-MOK/project/PyRBinLWE/CMakeLists.txt
+  Encryptor.cpp
+  Polynomial.cpp
+  module.cpp
+  Создание кода...
+     Создается библиотека D:/MPC-MOK/project/PyRBinLWE/VS_Studio_project/Debug/pybind11module.lib и объект D:/MPC-MOK/project/PyRBinLWE/VS_Studio_project/Debug/pybind11module.exp
+  pybind11module.vcxproj -> D:\MPC-MOK\project\PyRBinLWE\VS_Studio_project\Debug\pybind11module.cp310-win_amd64.pyd
