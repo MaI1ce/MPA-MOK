@@ -1,0 +1,7 @@
+﻿  Building Custom Rule D:/MPC-MOK/project/mpa_mok_project_git/PyRBinLWE/CMakeLists.txt
+  Encryptor.cpp
+  Polynomial.cpp
+  module.cpp
+  Создание кода...
+     Создается библиотека D:/MPC-MOK/project/mpa_mok_project_git/PyRBinLWE/VS_Studio_project/Debug/mpamok.lib и объект D:/MPC-MOK/project/mpa_mok_project_git/PyRBinLWE/VS_Studio_project/Debug/mpamok.exp
+  mpamok.vcxproj -> D:\MPC-MOK\project\mpa_mok_project_git\PyRBinLWE\VS_Studio_project\Debug\mpamok.cp310-win_amd64.pyd

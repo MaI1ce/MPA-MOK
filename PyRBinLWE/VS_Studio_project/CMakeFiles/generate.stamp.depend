@@ -1,9 +1,9 @@
 # CMake generation dependency list for this directory.
-D:/MPC-MOK/project/PyRBinLWE/CMakeLists.txt
-D:/MPC-MOK/project/PyRBinLWE/VS_Studio_project/CMakeFiles/3.25.1/CMakeCCompiler.cmake
-D:/MPC-MOK/project/PyRBinLWE/VS_Studio_project/CMakeFiles/3.25.1/CMakeCXXCompiler.cmake
-D:/MPC-MOK/project/PyRBinLWE/VS_Studio_project/CMakeFiles/3.25.1/CMakeRCCompiler.cmake
-D:/MPC-MOK/project/PyRBinLWE/VS_Studio_project/CMakeFiles/3.25.1/CMakeSystem.cmake
+D:/MPC-MOK/project/mpa_mok_project_git/PyRBinLWE/CMakeLists.txt
+D:/MPC-MOK/project/mpa_mok_project_git/PyRBinLWE/VS_Studio_project/CMakeFiles/3.25.1/CMakeCCompiler.cmake
+D:/MPC-MOK/project/mpa_mok_project_git/PyRBinLWE/VS_Studio_project/CMakeFiles/3.25.1/CMakeCXXCompiler.cmake
+D:/MPC-MOK/project/mpa_mok_project_git/PyRBinLWE/VS_Studio_project/CMakeFiles/3.25.1/CMakeRCCompiler.cmake
+D:/MPC-MOK/project/mpa_mok_project_git/PyRBinLWE/VS_Studio_project/CMakeFiles/3.25.1/CMakeSystem.cmake
 D:/tools/cmake/share/cmake-3.25/Modules/CMakeCCompiler.cmake.in
 D:/tools/cmake/share/cmake-3.25/Modules/CMakeCCompilerABI.c
 D:/tools/cmake/share/cmake-3.25/Modules/CMakeCInformation.cmake

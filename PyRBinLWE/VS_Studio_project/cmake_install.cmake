@@ -1,4 +1,4 @@
-# Install script for directory: D:/MPC-MOK/project/PyRBinLWE
+# Install script for directory: D:/MPC-MOK/project/mpa_mok_project_git/PyRBinLWE
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,7 +34,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("D:/MPC-MOK/project/PyRBinLWE/VS_Studio_project/externals/pybind11/cmake_install.cmake")
+  include("D:/MPC-MOK/project/mpa_mok_project_git/PyRBinLWE/VS_Studio_project/externals/pybind11/cmake_install.cmake")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "D:/MPC-MOK/project/PyRBinLWE/VS_Studio_project/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "D:/MPC-MOK/project/mpa_mok_project_git/PyRBinLWE/VS_Studio_project/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

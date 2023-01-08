@@ -10,12 +10,12 @@ set(EXTERNALS "${PROJECT_SOURCE_DIR}/externals")
 add_subdirectory(${EXTERNALS}/pybind11)
 
 pybind11_add_module(
-	pybind11module
+	mpamok
 	${MODULE_SOURCE}/module.cpp
 )
 
 target_include_directories(
-	pybind11module
+	mpamok
 	PRIVATE ${MODULE_SOURCE}
 )
 

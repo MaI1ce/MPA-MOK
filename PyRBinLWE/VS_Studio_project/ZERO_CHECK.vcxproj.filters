@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CustomBuild Include="D:\MPC-MOK\project\PyRBinLWE\VS_Studio_project\CMakeFiles\96991011320ba1307f20a4f389c3dd1e\generate.stamp.rule">
+    <CustomBuild Include="D:\MPC-MOK\project\mpa_mok_project_git\PyRBinLWE\VS_Studio_project\CMakeFiles\ecb081704cf563b787d56fd0f17ae636\generate.stamp.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CMake Rules">
-      <UniqueIdentifier>{282049FE-33DA-3561-9997-2DBD70852EFC}</UniqueIdentifier>
+      <UniqueIdentifier>{12FF0722-BE35-3444-8ECD-6C3EC11BFEE6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

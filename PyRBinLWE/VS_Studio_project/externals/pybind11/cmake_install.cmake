@@ -1,4 +1,4 @@
-# Install script for directory: D:/MPC-MOK/project/PyRBinLWE/externals/pybind11
+# Install script for directory: D:/MPC-MOK/project/mpa_mok_project_git/PyRBinLWE/externals/pybind11
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

@@ -46,7 +46,7 @@ public:
 	}
 };
 
-PYBIND11_MODULE(pybind11module, handle) {
+PYBIND11_MODULE(mpamok, handle) {
 
 	handle.doc() = "Module name: PyRBinLWE256 \n \
 					Author:	Vladyslav Shapoval \n \
@@ -111,7 +111,7 @@ PYBIND11_MODULE(pybind11module, handle) {
 	py::class_<RBinLWE256>(handle, "RBinLWE")
 		.def(py::init<>())
 		.def("init", &RBinLWE256::init)
-		.def("key_generator", &RBinLWE256::key_gen)
+		.def("key_generator", &RBinLWE256::key_gen, py::arg("a"))
 		.def("encrypt", &RBinLWE256::encrypt, py::arg("pk"), py::arg("m"), py::arg("a"))
 		.def("decrypt", &RBinLWE256::decrypt, py::arg("pk"), py::arg("c"))
 		.def("encode", &RBinLWE256::encode, py::arg("m"))
