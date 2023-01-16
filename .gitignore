@@ -9,3 +9,4 @@
 /PyRBinLWE/source/app/key.private
 *.public
 /PyRBinLWE/VS_Build
+*.private

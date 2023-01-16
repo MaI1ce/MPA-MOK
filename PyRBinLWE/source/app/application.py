@@ -116,21 +116,72 @@ class MainAppWindow:
         f = open(filename,'wb')
 
     def save_keys_to_file(self):
-        #filename = fd.askopenfilename()
-        f_public = open('key.public', 'wb')
-        f_private = open('key.private', 'wb')
-        public_poly_size = self.Keys.public_key.get_poly_mod()
+        filetype1 = (
+            ('public key files', '*.public'),
+            ('All files', '*.*')
+        )
+        filetype2 = (
+            ('private key files', '*.private'),
+            ('All files', '*.*')
+        )
+        if self.Keys != None:
+            filename_public = fd.asksaveasfilename(
+                title='Save public key file',
+                initialdir='.',
+                filetypes=filetype1,
+                defaultextension='.public')
+            f_public = open(filename_public, 'wb')
 
-        f_public.write(public_poly_size.to_bytes(2, 'big'))
-        f_public.write(b'\n'+self.Keys.public_key.to_string())
+            filename_private = fd.asksaveasfilename(
+                title='Save private key file',
+                initialdir='.',
+                filetypes=filetype2,
+                defaultextension='.private')
+            f_private = open(filename_private, 'wb')
 
-        f_private.write(public_poly_size.to_bytes(2,'big'))
-        f_private.write(b'\n' + self.Keys.private_key.to_string())
+            public_poly_size = self.Keys.public_key.get_poly_mod()
+
+            f_public.write(public_poly_size.to_bytes(2, 'big'))
+            f_public.write(b'\n'+self.Keys.public_key.to_string())
+
+            f_private.write(public_poly_size.to_bytes(2,'big'))
+            f_private.write(b'\n' + self.Keys.private_key.to_string())
+
+            self.tKey.delete('1.0', END)
+            # self.tKey['state'] = 'enabled'
+            self.tKey.insert(INSERT, 'Keys are saved in files: \n' + filename_public + '\n' + filename_private)
+        else:
+            self.tKey.insert(INSERT, 'There is no Keys to save')
+        #print(self.Keys.private_key.to_string())
 
     def import_keys_from_file(self):
         #filename = fd.askopenfilename()
-        f_public = open('key.public', 'rb')
-        f_private = open('key.private', 'rb')
+        #old_keys = self.Keys
+        filetype1 = (
+            ('public key files', '*.public'),
+            ('All files', '*.*')
+        )
+        filetype2 = (
+            ('private key files', '*.private'),
+            ('All files', '*.*')
+        )
+
+        filename_public = fd.askopenfilename(
+            title='Save public key file',
+            initialdir='.',
+            filetypes=filetype1,
+            defaultextension='.public')
+        f_public = open(filename_public, 'rb')
+
+        filename_private = fd.askopenfilename(
+            title='Save private key file',
+            initialdir='.',
+            filetypes=filetype2,
+            defaultextension='.private')
+        f_private = open(filename_private, 'rb')
+
+        # f_public = open('key.public', 'rb')
+        # f_private = open('key.private', 'rb')
         self.Keys = KeyRing()
 
         public_key_poly_size = int.from_bytes(f_public.read(2), 'big')
@@ -139,14 +190,26 @@ class MainAppWindow:
         self.Keys.public_key.init_str(pub_key_str,public_key_poly_size)
 
         private_key_poly_size = int.from_bytes(f_private.read(2), 'big')
-        f_public.read(1)
+        f_private.read(1)
         prive_key_str = f_private.read()
+        #print(prive_key_str)
         self.Keys.private_key.init_str(prive_key_str, private_key_poly_size)
 
         key_str = self.Keys.print_string()#.decode('latin-1')
         self.tKey.delete('1.0', END)
         #self.tKey['state'] = 'enabled'
         self.tKey.insert(INSERT, key_str)
+
+        # if old_keys.public_key == self.Keys.public_key:
+        #     self.tKey.insert(INSERT, 'public key = OK\n')
+        # else:
+        #     self.tKey.insert(INSERT, 'public key = NOK\n')
+        #
+        # if old_keys.private_key == self.Keys.private_key:
+        #     self.tKey.insert(INSERT, 'private key = OK\n')
+        # else:
+        #     self.tKey.insert(INSERT, 'private key = NOK\n')
+
 
 
 
