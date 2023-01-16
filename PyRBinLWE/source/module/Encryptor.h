@@ -31,6 +31,19 @@ public:
 	// Move assignment operator.
 	KeyRing& operator=(KeyRing&& obj);
 
+	std::string to_string() const {
+		std::string result = public_key.to_string() + '\n' + private_key.to_string();
+		return result;
+	}
+
+	std::string print_string() const {
+		std::string result = "\nPublic Key:\n";
+		result += public_key.print_string() + '\n';
+		result += "\nPrivate Key:\n";
+		result += private_key.print_string() + '\n';
+		return result;
+	}
+
 	bool operator==(const KeyRing& obj) const
 	{
 		return (public_key == obj.public_key) && (private_key == obj.private_key);
@@ -65,6 +78,18 @@ public:
 		return (c1 == obj.c1) && (c2 == obj.c2);
 	}
 
+	std::string to_string() const {
+		std::string result = c1.to_string() + '\n' + c2.to_string();
+		return result;
+	}
+
+	std::string print_string() const {
+		std::string result = "\nCipher text:\n";
+		result += "c1 = " + c1.print_string() + '\n';
+		result += "c2 = " + c2.print_string() + '\n';
+		return result;
+	}
+
 	friend class RBinLWE256;
 };
 
@@ -86,8 +111,8 @@ public:
 	Polynomial encode(const BinPolynomial& m) ;
 	BinPolynomial decode(const Polynomial& r) ;
 
-	std::vector<CipherText> encrypt_file(const Polynomial& p, const std::string& buffer, const Polynomial& a) ;
-	std::string decrypt_file(const BinPolynomial& r, const std::vector<CipherText>& cbuffer) ;
+	std::vector<CipherText> encrypt_string(const Polynomial& p, const std::string& buffer, const Polynomial& a) ;
+	std::string decrypt_string(const BinPolynomial& r, const std::vector<CipherText>& cbuffer) ;
 
 	RBinLWE256();
 

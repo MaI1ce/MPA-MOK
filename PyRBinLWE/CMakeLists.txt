@@ -12,6 +12,10 @@ add_subdirectory(${EXTERNALS}/pybind11)
 pybind11_add_module(
 	mpamok
 	${MODULE_SOURCE}/module.cpp
+	${MODULE_SOURCE}/Encryptor.cpp
+	${MODULE_SOURCE}/Polynomial.cpp
+	${MODULE_SOURCE}/Encryptor.h
+	${MODULE_SOURCE}/Polynomial.h
 )
 
 target_include_directories(
@@ -29,3 +33,5 @@ target_include_directories(
 	PRIVATE ${APP_SOURCE}
 	PRIVATE ${MODULE_SOURCE}
 )
+
+target_link_libraries(Application PRIVATE pybind11::embed)

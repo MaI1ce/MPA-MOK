@@ -159,12 +159,12 @@ bool PolynomialBase::init_str(const std::string& str, uint32_t n)
 	return flag;
 }
 
-std::string PolynomialBase::to_string()
+std::string PolynomialBase::to_string() const
 {
 	return std::string((char*)buffer, mem_size);
 }
 
-std::string PolynomialBase::print_string()
+std::string PolynomialBase::print_string() const
 {
 	std::stringstream out;
 	out << "[";
@@ -172,9 +172,9 @@ std::string PolynomialBase::print_string()
 	{
 		for (uint32_t i = 0; i < mem_size - 1; i++)
 		{
-			out << buffer[i] << ", ";
+			out << (uint16_t)buffer[i] << ", ";
 		}
-		out << buffer[mem_size - 1] << ']';
+		out << (uint16_t)buffer[mem_size - 1] << ']';
 	}
 	else {
 		out << ']';
@@ -541,7 +541,7 @@ std::ostream& operator<< (std::ostream& out, const BinPolynomial& obj)
 	return out;
 }
 
-std::string BinPolynomial::print_string()
+std::string BinPolynomial::print_string() const
 {
 	uint16_t bit = 0;
 	std::stringstream out;

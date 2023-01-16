@@ -33,9 +33,9 @@ public:
 
 	virtual bool init_str(const std::string& str, uint32_t n = 128);
 
-	virtual std::string print_string();
+	virtual std::string print_string() const;
 
-	std::string to_string();
+	std::string to_string() const;
 
 	PolynomialBase()
 		:poly_mod(0), mem_size(0), buffer(nullptr) {
@@ -102,7 +102,7 @@ public:
 
 	bool init_str(const std::string& str, uint32_t n = 128) override;
 
-	std::string print_string() override;
+	std::string print_string() const override;
 
 	//read from left to right (smallest coef to the left - biggest to the right)
 	friend std::ostream& operator<< (std::ostream& out, const BinPolynomial& obj);

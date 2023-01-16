@@ -183,7 +183,7 @@ BinPolynomial RBinLWE256::decrypt(const BinPolynomial& r, const CipherText& c)
 }
 
 
-std::vector<CipherText> RBinLWE256::encrypt_file(const Polynomial& p, const std::string& buffer, const Polynomial& a)
+std::vector<CipherText> RBinLWE256::encrypt_string(const Polynomial& p, const std::string& buffer, const Polynomial& a)
 {
 	BinPolynomial m;
 	m.init(0, a.poly_mod);
@@ -198,7 +198,7 @@ std::vector<CipherText> RBinLWE256::encrypt_file(const Polynomial& p, const std:
 	return ctext;
 }
 
-std::string RBinLWE256::decrypt_file(const BinPolynomial& r, const std::vector<CipherText>& cbuffer)
+std::string RBinLWE256::decrypt_string(const BinPolynomial& r, const std::vector<CipherText>& cbuffer)
 {
 	std::string str;
 	BinPolynomial m;
