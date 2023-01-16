@@ -5,3 +5,7 @@
 /.vs/mpa_mok_project_git/v17/.suo
 /.vs/VSWorkspaceState.json
 /PyRBinLWE/VS_Studio_project/.vs/PyRBinLWE
+/.idea
+/PyRBinLWE/source/app/key.private
+*.public
+/PyRBinLWE/VS_Build
