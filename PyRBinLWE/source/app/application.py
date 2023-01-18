@@ -240,11 +240,11 @@ class MainAppWindow:
         self.DecryptOutputText.delete('1.0', END)
         if self.Keys != None and self.encrypted_str != None:
             self.decrypted_str = decrypt_string(self.Keys.private_key, self.encrypted_str, self.encryptor)
-            self.EncryptOutputText.insert(INSERT, self.decrypted_str)
+            self.DecryptOutputText.insert(INSERT, self.decrypted_str)
         elif self.Keys == None :
-            self.EncryptOutputText.insert(INSERT, "Error: No encryption Keys selected")
+            self.DecryptOutputText.insert(INSERT, "Error: No encryption Keys selected")
         elif self.encrypted_str == None:
-            self.EncryptOutputText.insert(INSERT, "Error: No encrypted text")
+            self.DecryptOutputText.insert(INSERT, "Error: No encrypted text")
 
 
     
