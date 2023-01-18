@@ -107,12 +107,12 @@ public:
 	bool init();
 	KeyRing key_gen(const Polynomial& a);
 	CipherText encrypt(const Polynomial& p, const BinPolynomial& m, const Polynomial&a) ;
-	BinPolynomial decrypt(const BinPolynomial& p, const CipherText& c) ;
+	BinPolynomial decrypt(const BinPolynomial& p, const CipherText& c) const;
 	Polynomial encode(const BinPolynomial& m) ;
-	BinPolynomial decode(const Polynomial& r) ;
+	BinPolynomial decode(const Polynomial& r) const;
 
 	std::vector<CipherText> encrypt_string(const Polynomial& p, const std::string& buffer, const Polynomial& a) ;
-	std::string decrypt_string(const BinPolynomial& r, const std::vector<CipherText>& cbuffer) ;
+	std::string decrypt_string(const BinPolynomial& r, const std::vector<CipherText>& cbuffer) const;
 
 	RBinLWE256();
 

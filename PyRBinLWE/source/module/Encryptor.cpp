@@ -133,7 +133,7 @@ Polynomial RBinLWE256::encode(const BinPolynomial& m)
 }
 
 
-BinPolynomial RBinLWE256::decode(const Polynomial& c)
+BinPolynomial RBinLWE256::decode(const Polynomial& c) const
 {
 	static int k = (c.poly_mod - 2) / 2;
 
@@ -176,7 +176,7 @@ CipherText RBinLWE256::encrypt(const Polynomial& p, const BinPolynomial& m, cons
 }
 
 
-BinPolynomial RBinLWE256::decrypt(const BinPolynomial& r, const CipherText& c)
+BinPolynomial RBinLWE256::decrypt(const BinPolynomial& r, const CipherText& c) const
 {
 	Polynomial m = c.c2 + c.c1 * r;
 	return decode(m);
@@ -198,7 +198,7 @@ std::vector<CipherText> RBinLWE256::encrypt_string(const Polynomial& p, const st
 	return ctext;
 }
 
-std::string RBinLWE256::decrypt_string(const BinPolynomial& r, const std::vector<CipherText>& cbuffer)
+std::string RBinLWE256::decrypt_string(const BinPolynomial& r, const std::vector<CipherText>& cbuffer) const
 {
 	std::string str;
 	BinPolynomial m;

@@ -16,6 +16,8 @@ class MainAppWindow:
         self.encryptor.init()
         self.init_polynomial_a = Polynomial()
         self.Keys = None
+        self.encrypted_str = None
+        self.decrypted_str = None
         self.root = Tk()
         self.root.title("MPA-MOK-2022")
 
@@ -51,7 +53,7 @@ class MainAppWindow:
 
         #######################################################################
 
-        self.BtnEncrypt = ttk.Button(self.mainframe, text="Encrypt text", command=None)
+        self.BtnEncrypt = ttk.Button(self.mainframe, text="Encrypt text", command=self.encrypt_txt)
         self.BtnEncrypt.grid(column=0, row=3, sticky=(N, W, E, S))
 
         self.input_frame = ttk.Frame(self.mainframe, padding="3 3 3 3")
@@ -73,7 +75,7 @@ class MainAppWindow:
 
         #######################################################################
 
-        self.BtnDecrypt = ttk.Button(self.mainframe, text="Decrypt text", command=None)
+        self.BtnDecrypt = ttk.Button(self.mainframe, text="Decrypt text", command=self.decrypt_txt)
         self.BtnDecrypt.grid(column=0, row=5, sticky=(N, W, E, S), ipady=10)
 
         self.output_frame2 = ttk.Frame(self.mainframe, padding="3 3 3 3")
@@ -108,6 +110,8 @@ class MainAppWindow:
         key_str = self.Keys.print_string()#.decode('latin-1')
         self.tKey.delete('1.0', END)
         #self.tKey['state'] = 'enabled'
+        self.tKey.insert(INSERT, "Initial polynomial a:\n")
+        self.tKey.insert(INSERT, self.init_polynomial_a.print_string())
         self.tKey.insert(INSERT, key_str)
         #self.tKey['state'] = 'disabled'
 
@@ -143,6 +147,7 @@ class MainAppWindow:
 
             f_public.write(public_poly_size.to_bytes(2, 'big'))
             f_public.write(b'\n'+self.Keys.public_key.to_string())
+            f_public.write(self.init_polynomial_a.to_string())
 
             f_private.write(public_poly_size.to_bytes(2,'big'))
             f_private.write(b'\n' + self.Keys.private_key.to_string())
@@ -186,8 +191,10 @@ class MainAppWindow:
 
         public_key_poly_size = int.from_bytes(f_public.read(2), 'big')
         f_public.read(1)
-        pub_key_str = f_public.read()
+        pub_key_str = f_public.read(public_key_poly_size)
         self.Keys.public_key.init_str(pub_key_str,public_key_poly_size)
+        a_str = f_public.read(public_key_poly_size)
+        self.init_polynomial_a.init_str(a_str, public_key_poly_size)
 
         private_key_poly_size = int.from_bytes(f_private.read(2), 'big')
         f_private.read(1)
@@ -198,6 +205,8 @@ class MainAppWindow:
         key_str = self.Keys.print_string()#.decode('latin-1')
         self.tKey.delete('1.0', END)
         #self.tKey['state'] = 'enabled'
+        self.tKey.insert(INSERT, "Initial polynomial a:\n")
+        self.tKey.insert(INSERT, self.init_polynomial_a.print_string())
         self.tKey.insert(INSERT, key_str)
 
         # if old_keys.public_key == self.Keys.public_key:
@@ -210,7 +219,32 @@ class MainAppWindow:
         # else:
         #     self.tKey.insert(INSERT, 'private key = NOK\n')
 
+    def encrypt_txt(self):
+        input_str = self.input_text.get()
+        self.EncryptOutputText.delete('1.0', END)
+        if self.Keys != None:
+            self.encrypted_str = encrypt_string(self.Keys.public_key,
+                                                self.init_polynomial_a,
+                                                input_str,
+                                                self.encryptor)
+            for cipher_obj in self.encrypted_str:
+                output_str = cipher_obj.print_string()
+                # self.tKey['state'] = 'enabled'
+                self.EncryptOutputText.insert(INSERT, output_str)
 
+        else:
+            self.EncryptOutputText.insert(INSERT, "Error: No encryption Keys selected")
+
+    def decrypt_txt(self):
+        #input_str = self.input_text.get()
+        self.DecryptOutputText.delete('1.0', END)
+        if self.Keys != None and self.encrypted_str != None:
+            self.decrypted_str = decrypt_string(self.Keys.private_key, self.encrypted_str, self.encryptor)
+            self.EncryptOutputText.insert(INSERT, self.decrypted_str)
+        elif self.Keys == None :
+            self.EncryptOutputText.insert(INSERT, "Error: No encryption Keys selected")
+        elif self.encrypted_str == None:
+            self.EncryptOutputText.insert(INSERT, "Error: No encrypted text")
 
 
     

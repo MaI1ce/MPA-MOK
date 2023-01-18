@@ -25,7 +25,7 @@ protected:
 	bool memory_init(uint32_t m, uint8_t c);
 
 public:
-	uint32_t get_poly_mod() { return poly_mod; }
+	uint32_t get_poly_mod() const { return poly_mod; }
 
 	virtual bool random_init(uint32_t n = 128);
 

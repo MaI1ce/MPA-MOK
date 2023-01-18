@@ -46,6 +46,34 @@ public:
 	}
 };
 
+std::vector<CipherText> encrypt_string(const Polynomial& p, const Polynomial& a, const std::string& buffer, RBinLWE256& encryptor)
+{
+	BinPolynomial m;
+	m.init(0, a.get_poly_mod());
+	int block_size = (a.get_poly_mod() / 8);
+	int block_num = buffer.size() / block_size;
+	std::vector<CipherText> ctext(block_num + 1);
+
+	for (int i = 0, j = 0; j <= block_num; i += block_size, j++) {
+		m.init_str(buffer.substr(i, block_size));
+		ctext[j] = encryptor.encrypt(p, m, a);
+	}
+	return ctext;
+}
+
+std::string decrypt_string(const BinPolynomial& r, const std::vector<CipherText>& cbuffer, RBinLWE256& encryptor)
+{
+	std::string str = "None";
+	//BinPolynomial m;
+	//m.init(0, r.get_poly_mod());
+	//for (int i = 0; i < cbuffer.size(); i++)
+	//{
+	//	m = encryptor.decrypt(r, cbuffer[i]);
+	//	str += m.to_string();
+	//}
+	return str;
+}
+
 PYBIND11_MODULE(mpamok, handle) {
 
 	handle.doc() = "Module name: PyRBinLWE256 \n \
@@ -145,11 +173,15 @@ PYBIND11_MODULE(mpamok, handle) {
 		.def("init", &RBinLWE256::init)
 		.def("key_generator", &RBinLWE256::key_gen, py::arg("a"))
 		.def("encrypt", &RBinLWE256::encrypt, py::arg("public_key"), py::arg("msg"), py::arg("a"))
-		.def("decrypt", &RBinLWE256::decrypt, py::arg("private_key"), py::arg("c"))
-		.def("encode", &RBinLWE256::encode, py::arg("m"))
-		.def("decode", &RBinLWE256::decode, py::arg("r"))
-		.def("encrypt_string", &RBinLWE256::encrypt_string, py::arg("pk"), py::arg("buf"), py::arg("a"))
-		.def("decrypt_string", &RBinLWE256::decrypt_string, py::arg("pk"), py::arg("cbuf"));
+		.def("decrypt", &RBinLWE256::decrypt, py::arg("private_key"), py::arg("c"));
+				//.def("encode", &RBinLWE256::encode, py::arg("m"))
+				//.def("decode", &RBinLWE256::decode, py::arg("r"))
 
+	/*handle.def("encrypt_string", &encrypt_string, py::arg("public_key"), py::arg("a"), py::arg("buf_str"), py::arg("encryptor"), py::return_value_policy::reference);
+	handle.def("decrypt_string", &decrypt_string, py::arg("private_key"), py::arg("ctext_list"), py::arg("encryptor"), py::return_value_policy::reference);
+	*/
+	handle.def("encrypt_string", &encrypt_string, py::arg("public_key"), py::arg("a_init"), py::arg("buf_str"), py::arg("encryptor"), py::return_value_policy::reference);
+	handle.def("decrypt_string", [](const BinPolynomial& r, const std::vector<CipherText>& cbuffer, RBinLWE256& encryptor) 
+		{return decrypt_string(r, cbuffer, encryptor); }, py::return_value_policy::move);
 
 }
