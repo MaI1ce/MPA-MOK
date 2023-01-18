@@ -32,41 +32,48 @@ class MainAppWindow:
 
         #######################################################################
 
+        # add event handlers
+        self.BtnKeyFrame = ttk.Frame(self.mainframe)
+        self.BtnKeyFrame.grid(row=0, column=0, sticky=W+E)
+        
+        self.BtnKeyGen = ttk.Button(self.BtnKeyFrame, text="Generate new keys", command=self.generate_new_keys)
+        self.BtnKeyGen.grid(column=0, row=0, ipadx=textwidth/2, ipady=10, sticky=(N, W, E, S))
+
+        self.BtnImportKey = ttk.Button(self.BtnKeyFrame, text="Import keys from file", command=self.import_keys_from_file)
+        self.BtnImportKey.grid(column=1, row=0, ipadx=textwidth/2, ipady=10, sticky=(N, W, E, S))
+
+        self.BtnSaveKey = ttk.Button(self.BtnKeyFrame, text="Save keys to file", command=self.save_keys_to_file)
+        self.BtnSaveKey.grid(column=2, row=0, ipadx=textwidth/2, ipady=10, sticky=(N, W, E, S))
+
         self.KeyTextFrame = ttk.Frame(self.mainframe, padding="3 3 3 3")
-        self.KeyTextFrame.grid(column=1, row=0, rowspan=3, sticky=(N, W, E, S))
-        self.tKey = Text(self.KeyTextFrame, width=textwidth - 15, height=10, wrap='char')
-        self.tKey.grid(column=0, row=0, sticky=(N, W, E, S))
+        self.KeyTextFrame.grid(row=1, columnspan=3,sticky=(N, W, E, S))
+        ttk.Label(self.KeyTextFrame, text="Keys output").grid(row=0, sticky=W)
+        self.tKey = Text(self.KeyTextFrame, width=textwidth, height=10, wrap='char')
+        self.tKey.grid(column=0, row=1, sticky=(N, W, E, S))
         #self.tKey['state'] = 'disabled'
         self.ys_key = ttk.Scrollbar(self.KeyTextFrame, orient='vertical', command=self.tKey.yview)
         self.tKey['yscrollcommand'] = self.ys_key.set
-        self.ys_key.grid(column=1, row=0, sticky=(N, S))
-
-        # add event handlers
-        self.BtnKeyGen = ttk.Button(self.mainframe, text="Generate new keys", command=self.generate_new_keys)
-        self.BtnKeyGen.grid(column=0, row=0, sticky=(N, W, E, S))
-
-        self.BtnImportKey = ttk.Button(self.mainframe, text="Import keys from file", command=self.import_keys_from_file)
-        self.BtnImportKey.grid(column=0, row=1, sticky=(N, W, E, S))
-
-        self.BtnSaveKey = ttk.Button(self.mainframe, text="Save keys to file", command=self.save_keys_to_file)
-        self.BtnSaveKey.grid(column=0, row=2, sticky=(N, W, E, S))
-
-        # ttk.Label(mainframe, text="in proces").grid(column=1, row=0, sticky=W)
+        self.ys_key.grid(column=1, row=1, sticky=(N, S))
 
         #######################################################################
+        self.BtnEncryptFrame = ttk.Frame(self.mainframe)
+        self.BtnEncryptFrame.grid(row=2, column=0, sticky=W+E)
+        
+        self.BtnEncrypt = ttk.Button(self.BtnEncryptFrame, text="Encrypt text", command=self.encrypt_txt)
+        self.BtnEncrypt.grid(column=0, row=0, ipadx=textwidth/2, ipady=10, sticky=(N, W, E, S))
 
-        self.BtnEncrypt = ttk.Button(self.mainframe, text="Encrypt text", command=self.encrypt_txt)
-        self.BtnEncrypt.grid(column=0, row=3, sticky=(N, W, E, S))
+        self.EncryptFileBtn = ttk.Button(self.BtnEncryptFrame, text="Encrypt file", command=None)
+        self.EncryptFileBtn.grid(column=1, row=0, ipadx=textwidth/2, ipady=10, sticky=(N, W, E, S))
 
-        self.input_frame = ttk.Frame(self.mainframe, padding="3 3 3 3")
-        self.input_frame.grid(column=1, row=3, sticky=(N, W, E, S))
+        self.input_frame = ttk.Frame(self.BtnEncryptFrame, padding="3 3 3 3")
+        self.input_frame.grid(column=2, row=0, sticky=(N, W, E, S))
         ttk.Label(self.input_frame, text="Input text").grid(column=0, row=0, sticky=W)
         self.input_text = StringVar()
         self.input_text_entry = ttk.Entry(self.input_frame, width=85, textvariable=self.input_text)
-        self.input_text_entry.grid(column=0, row=1, sticky=(W, E))
+        self.input_text_entry.grid(column=0, row=1, columnspan=2, sticky=(W, E))
 
         self.output_frame1 = ttk.Frame(self.mainframe, padding="3 3 3 3")
-        self.output_frame1.grid(row=4, columnspan=2)
+        self.output_frame1.grid(row=3, columnspan=3,sticky=(N, W, E, S))
         ttk.Label(self.output_frame1, text="Encryption output text").grid(row=0, sticky=W)
         self.EncryptOutputText = Text(self.output_frame1, width=textwidth, height=10, wrap='char')
         self.EncryptOutputText.grid(column=0, row=1, sticky=(N, W, E, S))
@@ -75,13 +82,18 @@ class MainAppWindow:
         self.EncryptOutputText['yscrollcommand'] = self.ysEnc.set
         self.ysEnc.grid(column=1, row=1, sticky=(N, S))
 
-        #######################################################################
+        ####################################################################### 
+        self.BtnDecryptFrame = ttk.Frame(self.mainframe)
+        self.BtnDecryptFrame.grid(row=4, column=0, sticky=W+E)
+        
+        self.BtnDecrypt = ttk.Button(self.BtnDecryptFrame, text="Decrypt text", command=self.decrypt_txt)
+        self.BtnDecrypt.grid(column=0, row=0, ipadx=textwidth/2, ipady=10, sticky=(N, W, E, S))
 
-        self.BtnDecrypt = ttk.Button(self.mainframe, text="Decrypt text", command=self.decrypt_txt)
-        self.BtnDecrypt.grid(column=0, row=5, sticky=(N, W, E, S), ipady=10)
+        self.DecryptFileBtn = ttk.Button(self.BtnDecryptFrame, text="Decrypt file", command=None)
+        self.DecryptFileBtn.grid(column=1, row=0, ipadx=textwidth/2, ipady=10, sticky=(N, W, E, S))
 
         self.output_frame2 = ttk.Frame(self.mainframe, padding="3 3 3 3")
-        self.output_frame2.grid(row=6, columnspan=2)
+        self.output_frame2.grid(row=5, columnspan=3,sticky=(N, W, E, S))
         ttk.Label(self.output_frame2, text="Decryption output text").grid(row=0, sticky=W)
         self.DecryptOutputText = Text(self.output_frame2, width=textwidth, height=10, wrap='char')
         self.DecryptOutputText.grid(column=0, row=1, sticky=(N, W, E, S))
@@ -92,17 +104,22 @@ class MainAppWindow:
 
         #######################################################################
 
-        self.EncryptFileBtn = ttk.Button(self.mainframe, text="Encrypt file", command=None)
-        self.EncryptFileBtn.grid(column=0, row=7, sticky=(N, W, E, S), ipady=10)
-
-        self.DecryptFileBtn = ttk.Button(self.mainframe, text="Decrypt file", command=None)
-        self.DecryptFileBtn.grid(column=0, row=8, sticky=(N, W, E, S), ipady=10)
 
         for child in self.mainframe.winfo_children():
             child.grid_configure(padx=5, pady=5)
 
         # feet_entry.focus()
         # root.bind("<Return>", calculate)
+        self.mainframe.columnconfigure(0, weight=1)
+        self.mainframe.rowconfigure(1, weight=1)
+        self.input_frame.columnconfigure(0, weight=1)
+        self.input_frame.rowconfigure(1, weight=1)
+        self.KeyTextFrame.columnconfigure(0, weight=1)
+        self.KeyTextFrame.rowconfigure(0, weight=1)
+        self.output_frame1.rowconfigure(0, weight=1)
+        self.output_frame1.columnconfigure(0, weight=1)
+        self.output_frame2.rowconfigure(0, weight=1)
+        self.output_frame2.columnconfigure(0, weight=1)
 
         self.root.mainloop()
 
@@ -130,7 +147,7 @@ class MainAppWindow:
             ('private key files', '*.private'),
             ('All files', '*.*')
         )
-        if self.Keys != None:
+        if self.Keys != None: #try ... finally ...
             filename_public = fd.asksaveasfilename(
                 title='Save public key file',
                 initialdir='.',
@@ -157,6 +174,9 @@ class MainAppWindow:
             self.tKey.delete('1.0', END)
             # self.tKey['state'] = 'enabled'
             self.tKey.insert(INSERT, 'Keys are saved in files: \n' + filename_public + '\n' + filename_private)
+
+            f_public.close()
+            f_private.close()
         else:
             self.tKey.insert(INSERT, 'There is no Keys to save')
         #print(self.Keys.private_key.to_string())
@@ -211,6 +231,9 @@ class MainAppWindow:
         self.tKey.insert(INSERT, self.init_polynomial_a.print_bytes())
         self.tKey.insert(INSERT, key_str)
 
+        f_public.close()
+        f_private.close()
+
         # if old_keys.public_key == self.Keys.public_key:
         #     self.tKey.insert(INSERT, 'public key = OK\n')
         # else:
@@ -220,6 +243,28 @@ class MainAppWindow:
         #     self.tKey.insert(INSERT, 'private key = OK\n')
         # else:
         #     self.tKey.insert(INSERT, 'private key = NOK\n')
+
+    def _encrypt_str(self, public_key, a_init, str_to_enc):
+        m = BinPolynomial()
+        m.init(0, a_init.get_poly_mod())
+        block_size = a_init.get_poly_mod() // 8
+        block_num = len(str_to_enc) // block_size
+        vec = list()
+        i = 0
+        for j in range(block_num+1):
+            m.init_str(str_to_enc[i:i+block_size])
+            vec.append(self.encryptor.encrypt(public_key, m, a_init))
+            i += block_size
+        return vec
+
+    def _decrypt_str(self, private_key, cipher_text_list):
+        res = str()
+        m = BinPolynomial()
+        m.init(0, private_key.get_poly_mod())
+        for cipher_obj in cipher_text_list:
+            m = self.encryptor.decrypt(private_key, cipher_obj)
+            res += m.to_bytes().decode('latin1')
+        return res
 
     def encrypt_txt(self):
         input_str = self.input_text.get()
@@ -248,28 +293,15 @@ class MainAppWindow:
         elif self.encrypted_str == None:
             self.DecryptOutputText.insert(INSERT, "Error: No encrypted text")
 
-    def _encrypt_str(self, public_key, a_init, str_to_enc):
-        m = BinPolynomial()
-        m.init(0, a_init.get_poly_mod())
-        block_size = a_init.get_poly_mod() // 8
-        block_num = len(str_to_enc) // block_size
-        vec = list()
-        i = 0
-        for j in range(block_num+1):
-            m.init_str(str_to_enc[i:i+block_size])
-            vec.append(self.encryptor.encrypt(public_key, m, a_init))
-            i += block_size
-        return vec
-
-    def _decrypt_str(self, private_key, cipher_text_list):
-        res = str()
-        m = BinPolynomial()
-        m.init(0, private_key.get_poly_mod())
-        for cipher_obj in cipher_text_list:
-            m = self.encryptor.decrypt(private_key, cipher_obj)
-            res += m.to_bytes().decode('latin1')
-        return res
-
+    def encrypt_file(self):
+        filetype = (
+            ('All files', '*.*')
+        )
+        filename_public = fd.askopenfilename(
+            title='Open file',
+            initialdir='.',
+            filetypes=filetype)
+        f_public = open(filename_public, 'rb')
 
 
 
