@@ -49,35 +49,6 @@ public:
 	}
 };
 
-std::vector<CipherText> encrypt_string(const Polynomial& p, const Polynomial& a, const std::string& buffer, RBinLWE256& encryptor)
-{
-	BinPolynomial m;
-	m.init(0, a.get_poly_mod());
-	int block_size = (a.get_poly_mod() / 8);
-	int block_num = buffer.size() / block_size;
-	std::vector<CipherText> ctext(block_num + 1);
-
-	for (int i = 0, j = 0; j <= block_num; i += block_size, j++) {
-		m.init_str(buffer.substr(i, block_size));
-		ctext[j] = encryptor.encrypt(p, m, a);
-	}
-	return ctext;
-}
-
-std::string decrypt_string(const BinPolynomial& r, py::list& cbuffer, RBinLWE256& encryptor)
-{
-	std::string str;
-	//auto vec = cbuffer.cast<std::vector<CipherText>>();
-	BinPolynomial m;
-	m.init(0, r.get_poly_mod());
-	for (auto& it : cbuffer)
-	{
-		//m = encryptor.decrypt(r, it.cast<CipherText>());
-		//auto obj = it.cast<CipherText>();
-		str += m.to_string();
-	}
-	return str;
-}
 
 PYBIND11_MODULE(mpamok, handle) {
 
@@ -85,28 +56,18 @@ PYBIND11_MODULE(mpamok, handle) {
 					Author:	Vladyslav Shapoval \n \
 					MPA-MOK-2022 semestral project ";
 
-	//py::bind_vector<std::vector<CipherText>>(handle, "CipherVector");
-
 	py::class_<PolynomialBase, PyPolynomialBase<>>(handle, "PolynomialBase")
 		.def(py::init<>())
-		//.def(py::init<const Polynomial&>()) // Copy constructor
-		//.def(py::init<Polynomial&&>()) // Move constructor
 		.def("__copy__", [](const PolynomialBase& self) {
 			return PolynomialBase(self);
 		})
 		.def("__deepcopy__", [](const PolynomialBase& self, py::dict) {
 			return PolynomialBase(self);
 		}, "memo"_a)
-		.def("__str__", [](const PolynomialBase& self) {
+		.def("to_bytes", [](const PolynomialBase& self) {
 			return py::bytes(self.to_string());
 			})
-		.def("__repr__", [](const PolynomialBase& self) {
-			return py::bytes(self.print_string());
-			})
-		.def("to_string", [](const PolynomialBase& self) {
-			return py::bytes(self.to_string());
-			})
-		.def("print_string", [](const PolynomialBase& self) {
+		.def("print_bytes", [](const PolynomialBase& self) {
 			return py::bytes(self.print_string());
 			})
 		.def("get_poly_mod", &PolynomialBase::get_poly_mod)
@@ -143,16 +104,10 @@ PYBIND11_MODULE(mpamok, handle) {
 		.def(py::init<const Polynomial&, const BinPolynomial&>())
 		.def_readwrite("public_key", &KeyRing::public_key)
 		.def_readwrite("private_key", &KeyRing::private_key)
-		.def("__str__", [](const KeyRing& self) {
-			return py::bytes(self.to_string());
-			})
-		.def("__repr__", [](const KeyRing& self) {
-				return py::bytes(self.print_string());
-			})
-		.def("to_string", [](const KeyRing& self) {
+		.def("to_bytes", [](const KeyRing& self) {
 				return py::bytes(self.to_string());
 			})
-		.def("print_string", [](const KeyRing& self) {
+		.def("print_bytes", [](const KeyRing& self) {
 						return py::bytes(self.print_string());
 			})
 		.def(py::self == py::self);
@@ -161,16 +116,10 @@ PYBIND11_MODULE(mpamok, handle) {
 		.def(py::init<>())
 		.def_readwrite("c1", &CipherText::c1)
 		.def_readwrite("c2", &CipherText::c2)
-		.def("__str__", [](const CipherText& self) {
+		.def("to_bytes", [](const CipherText& self) {
 			return py::bytes(self.to_string());
 			})
-		.def("__repr__", [](const CipherText& self) {
-			return py::bytes(self.print_string());
-			})
-		.def("to_string", [](const CipherText& self) {
-			return py::bytes(self.to_string());
-			})
-		.def("print_string", [](const CipherText& self) {
+		.def("print_bytes", [](const CipherText& self) {
 			return py::bytes(self.print_string());
 			})
 		.def(py::self == py::self);
@@ -181,29 +130,5 @@ PYBIND11_MODULE(mpamok, handle) {
 		.def("key_generator", &RBinLWE256::key_gen, py::arg("a"))
 		.def("encrypt", &RBinLWE256::encrypt, py::arg("public_key"), py::arg("msg"), py::arg("a"))
 		.def("decrypt", &RBinLWE256::decrypt, py::arg("private_key"), py::arg("c"));
-				//.def("encode", &RBinLWE256::encode, py::arg("m"))
-				//.def("decode", &RBinLWE256::decode, py::arg("r"))
-
-	/*handle.def("encrypt_string", &encrypt_string, py::arg("public_key"), py::arg("a"), py::arg("buf_str"), py::arg("encryptor"), py::return_value_policy::reference);
-	handle.def("decrypt_string", &decrypt_string, py::arg("private_key"), py::arg("ctext_list"), py::arg("encryptor"), py::return_value_policy::reference);
-	*/
-
-	//DEFINE STRING ENCRYPT/DECRYPT FUNCTIONS IN PYTHON AND FORGET ABOUT THIS
-
-	handle.def("encrypt_string", &encrypt_string, py::arg("public_key"), py::arg("a_init"), py::arg("buf_str"), py::arg("encryptor"), py::return_value_policy::reference);
-	handle.def("decrypt_string", [](const BinPolynomial& r, py::list& cbuffer, RBinLWE256& encryptor)
-	{
-		std::string str;
-		//auto vec = cbuffer.cast<std::vector<CipherText>>();
-		BinPolynomial m;
-		m.init(0, r.get_poly_mod());
-		for (auto& it : cbuffer)
-		{
-			m = encryptor.decrypt(r, it.cast<CipherText>());
-			//auto obj = it.cast<CipherText>();
-			str += m.to_string();
-		}
-		return str;
-	}, py::return_value_policy::reference);
-
+	
 }

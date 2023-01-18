@@ -111,8 +111,8 @@ public:
 	Polynomial encode(const BinPolynomial& m) ;
 	BinPolynomial decode(const Polynomial& r) const;
 
-	std::vector<CipherText> encrypt_string(const Polynomial& p, const std::string& buffer, const Polynomial& a) ;
-	std::string decrypt_string(const BinPolynomial& r, const std::vector<CipherText>& cbuffer) const;
+	//std::vector<CipherText> encrypt_string(const Polynomial& p, const std::string& buffer, const Polynomial& a) ;
+	//std::string decrypt_string(const BinPolynomial& r, const std::vector<CipherText>& cbuffer) const;
 
 	RBinLWE256();
 

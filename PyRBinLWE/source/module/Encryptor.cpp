@@ -183,33 +183,33 @@ BinPolynomial RBinLWE256::decrypt(const BinPolynomial& r, const CipherText& c) c
 }
 
 
-std::vector<CipherText> RBinLWE256::encrypt_string(const Polynomial& p, const std::string& buffer, const Polynomial& a)
-{
-	BinPolynomial m;
-	m.init(0, a.poly_mod);
-	int block_size = (a.poly_mod / 8);
-	int block_num = buffer.size() / block_size;
-	std::vector<CipherText> ctext(block_num+1);
-
-	for (int i = 0, j = 0; j <= block_num; i += block_size, j++) {
-		m.init_str(buffer.substr(i, block_size));
-		ctext[j] = encrypt(p, m, a);
-	}
-	return ctext;
-}
-
-std::string RBinLWE256::decrypt_string(const BinPolynomial& r, const std::vector<CipherText>& cbuffer) const
-{
-	std::string str;
-	BinPolynomial m;
-	m.init(0, r.poly_mod);
-	for (int i = 0; i < cbuffer.size(); i++)
-	{
-		m = decrypt(r, cbuffer[i]);
-		str += m.to_string();
-	}
-	return str;
-}
+//std::vector<CipherText> RBinLWE256::encrypt_string(const Polynomial& p, const std::string& buffer, const Polynomial& a)
+//{
+//	BinPolynomial m;
+//	m.init(0, a.poly_mod);
+//	int block_size = (a.poly_mod / 8);
+//	int block_num = buffer.size() / block_size;
+//	std::vector<CipherText> ctext(block_num+1);
+//
+//	for (int i = 0, j = 0; j <= block_num; i += block_size, j++) {
+//		m.init_str(buffer.substr(i, block_size));
+//		ctext[j] = encrypt(p, m, a);
+//	}
+//	return ctext;
+//}
+//
+//std::string RBinLWE256::decrypt_string(const BinPolynomial& r, const std::vector<CipherText>& cbuffer) const
+//{
+//	std::string str;
+//	BinPolynomial m;
+//	m.init(0, r.poly_mod);
+//	for (int i = 0; i < cbuffer.size(); i++)
+//	{
+//		m = decrypt(r, cbuffer[i]);
+//		str += m.to_string();
+//	}
+//	return str;
+//}
 
 
 

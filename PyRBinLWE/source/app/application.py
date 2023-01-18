@@ -3,6 +3,8 @@ from tkinter import ttk
 from tkinter import filedialog as fd
 import sys
 sys.path.insert(0, '..\..\lib')
+#sys.path.insert(0, 'F:\MPA-MOK\PyRBinLWE\lib')
+
 from mpamok import *
 #from PyRBinLWE.lib.mpamok import *
 
@@ -107,11 +109,11 @@ class MainAppWindow:
     def generate_new_keys(self):
         self.init_polynomial_a.random_init()
         self.Keys = self.encryptor.key_generator(self.init_polynomial_a)
-        key_str = self.Keys.print_string()#.decode('latin-1')
+        key_str = self.Keys.print_bytes()#.decode('latin-1')
         self.tKey.delete('1.0', END)
         #self.tKey['state'] = 'enabled'
         self.tKey.insert(INSERT, "Initial polynomial a:\n")
-        self.tKey.insert(INSERT, self.init_polynomial_a.print_string())
+        self.tKey.insert(INSERT, self.init_polynomial_a.print_bytes())
         self.tKey.insert(INSERT, key_str)
         #self.tKey['state'] = 'disabled'
 
@@ -146,11 +148,11 @@ class MainAppWindow:
             public_poly_size = self.Keys.public_key.get_poly_mod()
 
             f_public.write(public_poly_size.to_bytes(2, 'big'))
-            f_public.write(b'\n'+self.Keys.public_key.to_string())
-            f_public.write(self.init_polynomial_a.to_string())
+            f_public.write(b'\n'+self.Keys.public_key.to_bytes())
+            f_public.write(self.init_polynomial_a.to_bytes())
 
             f_private.write(public_poly_size.to_bytes(2,'big'))
-            f_private.write(b'\n' + self.Keys.private_key.to_string())
+            f_private.write(b'\n' + self.Keys.private_key.to_bytes())
 
             self.tKey.delete('1.0', END)
             # self.tKey['state'] = 'enabled'
@@ -202,11 +204,11 @@ class MainAppWindow:
         #print(prive_key_str)
         self.Keys.private_key.init_str(prive_key_str, private_key_poly_size)
 
-        key_str = self.Keys.print_string()#.decode('latin-1')
+        key_str = self.Keys.print_bytes()#.decode('latin-1')
         self.tKey.delete('1.0', END)
         #self.tKey['state'] = 'enabled'
         self.tKey.insert(INSERT, "Initial polynomial a:\n")
-        self.tKey.insert(INSERT, self.init_polynomial_a.print_string())
+        self.tKey.insert(INSERT, self.init_polynomial_a.print_bytes())
         self.tKey.insert(INSERT, key_str)
 
         # if old_keys.public_key == self.Keys.public_key:
@@ -223,12 +225,11 @@ class MainAppWindow:
         input_str = self.input_text.get()
         self.EncryptOutputText.delete('1.0', END)
         if self.Keys != None:
-            self.encrypted_str = encrypt_string(self.Keys.public_key,
+            self.encrypted_str = self._encrypt_str(self.Keys.public_key,
                                                 self.init_polynomial_a,
-                                                input_str,
-                                                self.encryptor)
+                                                input_str)
             for cipher_obj in self.encrypted_str:
-                output_str = cipher_obj.print_string()
+                output_str = cipher_obj.print_bytes()
                 # self.tKey['state'] = 'enabled'
                 self.EncryptOutputText.insert(INSERT, output_str)
 
@@ -239,15 +240,38 @@ class MainAppWindow:
         #input_str = self.input_text.get()
         self.DecryptOutputText.delete('1.0', END)
         if self.Keys != None and self.encrypted_str != None:
-            self.decrypted_str = decrypt_string(self.Keys.private_key, self.encrypted_str, self.encryptor)
+            self.decrypted_str = self._decrypt_str(self.Keys.private_key,
+                                                   self.encrypted_str)
             self.DecryptOutputText.insert(INSERT, self.decrypted_str)
         elif self.Keys == None :
             self.DecryptOutputText.insert(INSERT, "Error: No encryption Keys selected")
         elif self.encrypted_str == None:
             self.DecryptOutputText.insert(INSERT, "Error: No encrypted text")
 
+    def _encrypt_str(self, public_key, a_init, str_to_enc):
+        m = BinPolynomial()
+        m.init(0, a_init.get_poly_mod())
+        block_size = a_init.get_poly_mod() // 8
+        block_num = len(str_to_enc) // block_size
+        vec = list()
+        i = 0
+        for j in range(block_num+1):
+            m.init_str(str_to_enc[i:i+block_size])
+            vec.append(self.encryptor.encrypt(public_key, m, a_init))
+            i += block_size
+        return vec
 
-    
+    def _decrypt_str(self, private_key, cipher_text_list):
+        res = str()
+        m = BinPolynomial()
+        m.init(0, private_key.get_poly_mod())
+        for cipher_obj in cipher_text_list:
+            m = self.encryptor.decrypt(private_key, cipher_obj)
+            res += m.to_bytes().decode('latin1')
+        return res
+
+
+
 
 if __name__ == "__main__":
     app_win = MainAppWindow()
