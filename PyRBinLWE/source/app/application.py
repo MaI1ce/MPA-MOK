@@ -21,7 +21,7 @@ class MainAppWindow:
         self.encryptor.init()
         self.init_polynomial_a = Polynomial()
         self.Keys = None
-        self.key_size = None
+        self.key_size = 128
         self.encrypted_str = None
         self.decrypted_str = None
         self.root = Tk()
@@ -48,6 +48,22 @@ class MainAppWindow:
 
         self.BtnSaveKey = ttk.Button(self.BtnKeyFrame, text="Save keys to file", command=self.save_keys_to_file)
         self.BtnSaveKey.grid(column=2, row=0, ipadx=textwidth/2, ipady=10, sticky=(N, W, E, S))
+
+        self.SizeKeyFrame = ttk.Frame(self.BtnKeyFrame)
+        self.SizeKeyFrame.grid(row=0, column=3)
+
+        self.countryvar = StringVar()
+        self.countryvar.set("128")
+        self.KeySizeBox = ttk.Combobox(self.SizeKeyFrame, textvariable=self.countryvar)
+        def select_size(event):
+            self.key_size = int(self.countryvar.get())
+            print(self.key_size)
+
+        self.KeySizeBox.bind('<<ComboboxSelected>>', select_size)
+        self.KeySizeBox['values'] = ('64', '128', '256')
+        self.KeySizeBox.state(["readonly"])
+        ttk.Label(self.SizeKeyFrame, text="Key size (bit)").grid(column=0, row=0, sticky=W)
+        self.KeySizeBox.grid(column=0, row=1)
 
         self.KeyTextFrame = ttk.Frame(self.mainframe, padding="3 3 3 3")
         self.KeyTextFrame.grid(row=1, columnspan=3,sticky=(N, W, E, S))
@@ -130,7 +146,7 @@ class MainAppWindow:
     def generate_new_keys(self):
         self.tKey.delete('1.0', END)
         try:
-            self.init_polynomial_a.random_init()
+            self.init_polynomial_a.random_init(self.key_size)
             self.Keys = self.encryptor.key_generator(self.init_polynomial_a)
             key_str = self.Keys.print_bytes()#.decode('latin-1')
             #self.tKey['state'] = 'enabled'
@@ -169,13 +185,13 @@ class MainAppWindow:
                     defaultextension='.private')
                 f_private = open(filename_private, 'wb')
 
-                public_poly_size = self.Keys.public_key.get_poly_mod()
+                #public_poly_size = self.Keys.public_key.get_poly_mod()
 
-                f_public.write(public_poly_size.to_bytes(2, 'big'))
+                f_public.write(self.key_size.to_bytes(2, 'big'))
                 f_public.write(b'\n'+self.Keys.public_key.to_bytes())
                 f_public.write(self.init_polynomial_a.to_bytes())
 
-                f_private.write(public_poly_size.to_bytes(2,'big'))
+                f_private.write(self.key_size.to_bytes(2,'big'))
                 f_private.write(b'\n' + self.Keys.private_key.to_bytes())
 
                 self.tKey.delete('1.0', END)
@@ -223,13 +239,19 @@ class MainAppWindow:
             self.Keys = KeyRing()
 
             public_key_poly_size = int.from_bytes(f_public.read(2), 'big')
+            private_key_poly_size = int.from_bytes(f_private.read(2), 'big')
+            if private_key_poly_size == public_key_poly_size:
+                self.key_size = public_key_poly_size
+                self.countryvar.set(str(self.key_size))
+            else:
+                self.tKey.insert(INSERT, "Error: Public and Private keys has different size\n")
+                return
             f_public.read(1)
             pub_key_str = f_public.read(public_key_poly_size)
             self.Keys.public_key.init_str(pub_key_str,public_key_poly_size)
             a_str = f_public.read(public_key_poly_size)
             self.init_polynomial_a.init_str(a_str, public_key_poly_size)
 
-            private_key_poly_size = int.from_bytes(f_private.read(2), 'big')
             f_private.read(1)
             prive_key_str = f_private.read()
             #print(prive_key_str)
@@ -259,8 +281,8 @@ class MainAppWindow:
 
     def _encrypt_str(self, public_key, a_init, str_to_enc):
         m = BinPolynomial()
-        m.init(0, a_init.get_poly_mod())
-        block_size = a_init.get_poly_mod() // 8
+        m.init(0, self.key_size)
+        block_size = self.key_size // 8
         block_num = len(str_to_enc) // block_size
         q = len(str_to_enc) % block_size
         if q != 0:
@@ -276,7 +298,7 @@ class MainAppWindow:
     def _decrypt_str(self, private_key, cipher_text_list):
         res = bytes()
         m = BinPolynomial()
-        m.init(0, private_key.get_poly_mod())
+        m.init(0, self.key_size)
         for cipher_obj in cipher_text_list:
             m = self.encryptor.decrypt(private_key, cipher_obj)
             res += m.to_bytes()
@@ -290,7 +312,7 @@ class MainAppWindow:
                 self.encrypted_str = self._encrypt_str(self.Keys.public_key,
                                                     self.init_polynomial_a,
                                                     input_str)
-
+                self.EncryptOutputText.insert(INSERT, "Average time for encryption of one polynomial: " + str(self.encryptor.get_encryption_time()) + "\n\n")
                 for cipher_obj in self.encrypted_str:
                     output_str = cipher_obj.print_bytes()
                     self.EncryptOutputText.insert(INSERT, output_str)
@@ -306,6 +328,8 @@ class MainAppWindow:
             if self.Keys != None and self.encrypted_str != None:
                 self.decrypted_str = self._decrypt_str(self.Keys.private_key,
                                                        self.encrypted_str)
+                self.DecryptOutputText.insert(INSERT, "Average time for decryption of one polynomial: " + str(
+                    self.encryptor.get_decryption_time()) + "\n\n")
                 self.DecryptOutputText.insert(INSERT, self.decrypted_str.decode('latin1'))
             elif self.Keys == None :
                 self.DecryptOutputText.insert(INSERT, "Error: No encryption Keys selected")
@@ -342,7 +366,9 @@ class MainAppWindow:
 
                     public_poly_size = self.Keys.public_key.get_poly_mod()
 
-                    self.EncryptOutputText.insert(INSERT, 'Encrypted text is saved in file: ' + filename +'.blwe \n\n')
+                    self.EncryptOutputText.insert(INSERT, 'Encrypted text is saved in file: ' + filename +'.blwe \n')
+                    self.EncryptOutputText.insert(INSERT, "Average time for encryption of one polynomial: " + str(
+                        self.encryptor.get_encryption_time()) + "\n\n")
 
                     f_enc.write(public_poly_size.to_bytes(2, 'big'))
                     f_enc.write(b'\n')
@@ -416,7 +442,9 @@ class MainAppWindow:
                     self.decrypted_str = self._decrypt_str(self.Keys.private_key,
                                                             self.encrypted_str)
 
-                    self.DecryptOutputText.insert(INSERT, 'Encrypted text is saved in file: ' + filename[:-5])
+                    self.DecryptOutputText.insert(INSERT, 'Decrypted text is saved in file: ' + filename[:-5] + '\n')
+                    self.DecryptOutputText.insert(INSERT, "Average time for decryption of one polynomial: " + str(
+                        self.encryptor.get_decryption_time()) + "\n\n")
                     f.write(self.decrypted_str)
 
                 else:

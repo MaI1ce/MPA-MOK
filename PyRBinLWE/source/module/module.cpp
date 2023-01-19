@@ -127,8 +127,10 @@ PYBIND11_MODULE(mpamok, handle) {
 	py::class_<RBinLWE256>(handle, "RBinLWE")
 		.def(py::init<>())
 		.def("init", &RBinLWE256::init)
+		.def("get_encryption_time", &RBinLWE256::get_enc_time)
+		.def("get_decryption_time", &RBinLWE256::get_dec_time)
 		.def("key_generator", &RBinLWE256::key_gen, py::arg("a"))
 		.def("encrypt", &RBinLWE256::encrypt, py::arg("public_key"), py::arg("msg"), py::arg("a"))
 		.def("decrypt", &RBinLWE256::decrypt, py::arg("private_key"), py::arg("c"));
-	
+
 }

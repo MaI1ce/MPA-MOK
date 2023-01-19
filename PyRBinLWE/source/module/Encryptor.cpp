@@ -13,6 +13,10 @@ bool RBinLWE256::init()
 }
 
 RBinLWE256::RBinLWE256()
+	//:avg_add_time(0),
+	//avg_mul_time(0),
+	:avg_enc_time(0),
+	avg_dec_time(0)
 {
 #ifdef _DEBUG_
 	std::cout << "basic constructor RBinLWE256\n";
@@ -26,7 +30,11 @@ RBinLWE256::RBinLWE256(const RBinLWE256& obj)
 	e2(obj.e2),
 	e3(obj.e3),
 	r1(obj.r1),
-	r2(obj.r2)
+	r2(obj.r2),
+	//avg_add_time(obj.avg_add_time),
+	//avg_mul_time(obj.avg_mul_time),
+	avg_enc_time(obj.avg_enc_time),
+	avg_dec_time(obj.avg_dec_time)
 	//a(obj.a)
 {
 #ifdef _DEBUG_
@@ -40,7 +48,11 @@ RBinLWE256::RBinLWE256(RBinLWE256&& obj)
 	e2(std::move(obj.e2)),
 	e3(std::move(obj.e3)),
 	r1(std::move(obj.r1)),
-	r2(std::move(obj.r2))
+	r2(std::move(obj.r2)),
+	//avg_add_time(obj.avg_add_time),
+	//avg_mul_time(obj.avg_mul_time),
+	avg_enc_time(obj.avg_enc_time),
+	avg_dec_time(obj.avg_dec_time)
 	//a(obj.a) 
 {
 #ifdef _DEBUG_
@@ -63,6 +75,10 @@ RBinLWE256& RBinLWE256::operator=(const RBinLWE256& obj)
 	e3 = obj.e3;
 	r1 = obj.r1;
 	r2 = obj.r2;
+	//avg_add_time = obj.avg_add_time;
+	//avg_mul_time = obj.avg_mul_time;
+	avg_enc_time = obj.avg_enc_time;
+	avg_dec_time = obj.avg_dec_time;
 	//a = obj.a;
 #ifdef _DEBUG_
 	std::cout << "copy asign. operator RBinLWE256\n";
@@ -79,6 +95,10 @@ RBinLWE256& RBinLWE256::operator=(RBinLWE256&& obj)
 	e3 = std::move(obj.e3);
 	r1 = std::move(obj.r1);
 	r2 = std::move(obj.r2);
+	//avg_add_time = obj.avg_add_time;
+	//avg_mul_time = obj.avg_mul_time;
+	avg_enc_time = obj.avg_enc_time;
+	avg_dec_time = obj.avg_dec_time;
 	//a = std::move(obj.a);
 #ifdef _DEBUG_
 	std::cout << "move asign. operator RBinLWE256\n";
@@ -100,6 +120,7 @@ std::ostream& operator<< (std::ostream& out, const RBinLWE256& obj)
 
 KeyRing RBinLWE256::key_gen(const Polynomial& a) 
 {
+
 	KeyRing keys;
 	e1.random_init();
 	e2.random_init();
@@ -163,6 +184,11 @@ BinPolynomial RBinLWE256::decode(const Polynomial& c) const
 
 CipherText RBinLWE256::encrypt(const Polynomial& p, const BinPolynomial& m, const Polynomial& a)
 {
+	LARGE_INTEGER frequency;
+	LARGE_INTEGER t1, t2;
+	QueryPerformanceFrequency(&frequency);
+	QueryPerformanceCounter(&t1);
+
 	CipherText c;
 	e1.random_init();
 	e2.random_init();
@@ -172,14 +198,33 @@ CipherText RBinLWE256::encrypt(const Polynomial& p, const BinPolynomial& m, cons
 	c.c1 = e2 + (a * e1);
 	c.c2 = n + e3 + (p * e1);
 
+	QueryPerformanceCounter(&t2);
+	if (avg_enc_time == 0)
+		avg_enc_time = (t2.QuadPart - t1.QuadPart) / frequency.QuadPart;
+	else
+		avg_enc_time = (avg_enc_time + ((t2.QuadPart - t1.QuadPart) / frequency.QuadPart)) / 2;
+
 	return c;
 }
 
 
-BinPolynomial RBinLWE256::decrypt(const BinPolynomial& r, const CipherText& c) const
+BinPolynomial RBinLWE256::decrypt(const BinPolynomial& r, const CipherText& c)
 {
+	LARGE_INTEGER frequency;
+	LARGE_INTEGER t1, t2;
+	QueryPerformanceFrequency(&frequency);
+	QueryPerformanceCounter(&t1);
+
 	Polynomial m = c.c2 + c.c1 * r;
-	return decode(m);
+	BinPolynomial n = decode(m);
+
+	QueryPerformanceCounter(&t2);
+	if (avg_dec_time == 0)
+		avg_dec_time = (t2.QuadPart - t1.QuadPart) / frequency.QuadPart;
+	else
+		avg_dec_time = (avg_dec_time + ((t2.QuadPart - t1.QuadPart) / frequency.QuadPart)) / 2;
+
+	return n;
 }
 
 

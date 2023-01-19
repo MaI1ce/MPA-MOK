@@ -3,6 +3,13 @@
 
 #include "Polynomial.h"
 #include <vector>
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
 // 
 
 
@@ -103,14 +110,21 @@ private:
 	BinPolynomial r2;
 	//Polynomial	a;
 
+	//double avg_add_time;
+	//double avg_mul_time;
+	double avg_enc_time;
+	double avg_dec_time;
+
 public:
 	bool init();
 	KeyRing key_gen(const Polynomial& a);
 	CipherText encrypt(const Polynomial& p, const BinPolynomial& m, const Polynomial&a) ;
-	BinPolynomial decrypt(const BinPolynomial& p, const CipherText& c) const;
+	BinPolynomial decrypt(const BinPolynomial& p, const CipherText& c);
 	Polynomial encode(const BinPolynomial& m) ;
 	BinPolynomial decode(const Polynomial& r) const;
 
+	double get_enc_time() { return avg_enc_time; }
+	double get_dec_time() { return avg_dec_time; }
 	//std::vector<CipherText> encrypt_string(const Polynomial& p, const std::string& buffer, const Polynomial& a) ;
 	//std::string decrypt_string(const BinPolynomial& r, const std::vector<CipherText>& cbuffer) const;
 
