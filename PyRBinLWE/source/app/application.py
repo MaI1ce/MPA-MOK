@@ -3,6 +3,7 @@ from tkinter import ttk
 from tkinter import filedialog as fd
 import sys
 import os
+import copy
 sys.path.insert(0, '..\..\lib')
 #sys.path.insert(0, 'F:\MPA-MOK\PyRBinLWE\lib')
 
@@ -261,8 +262,9 @@ class MainAppWindow:
         m.init(0, a_init.get_poly_mod())
         block_size = a_init.get_poly_mod() // 8
         block_num = len(str_to_enc) // block_size
-        if block_num == 0:
-            block_num = 1
+        q = len(str_to_enc) % block_size
+        if q != 0:
+            block_num += 1
         vec = list()
         i = 0
         for j in range(block_num):
@@ -335,6 +337,9 @@ class MainAppWindow:
                                                        self.init_polynomial_a,
                                                        file_str)
 
+                    global global_var
+                    global_var = self.encrypted_str
+
                     public_poly_size = self.Keys.public_key.get_poly_mod()
 
                     self.EncryptOutputText.insert(INSERT, 'Encrypted text is saved in file: ' + filename +'.blwe \n\n')
@@ -348,8 +353,6 @@ class MainAppWindow:
                         bytes_str += cipher_obj.to_bytes()
 
                     self.EncryptOutputText.insert(INSERT, output_str.decode('latin1'))
-                    global global_var
-                    global_var = self.encrypted_str
                     f_enc.write(bytes_str)
 
                 else:
@@ -376,22 +379,20 @@ class MainAppWindow:
         vec = None
         expected_key_size = 0
         try:
-            global global_var
-            m = CipherText()
+
             file_size = os.path.getsize(filename)
             f_enc = open(filename, 'rb')
             file_str = f_enc.read(file_size)
             expected_key_size = int.from_bytes(file_str[:2], 'big')
-            m.c1.init(0, expected_key_size)
-            m.c2.init(0, expected_key_size)
             block_size = (expected_key_size)
             block_num = (file_size-3) // block_size
             vec = list()
             i = 3
             for j in range(block_num//2):
-                m.c1.init_str(file_str[i:i + block_size])
+                m = CipherText()
+                m.c1.init_str(file_str[i:i + block_size],expected_key_size)
                 i += block_size
-                m.c2.init_str(file_str[i:i + block_size])
+                m.c2.init_str(file_str[i:i + block_size],expected_key_size)
                 i += block_size
                 vec.append(m)
         finally:
@@ -405,7 +406,7 @@ class MainAppWindow:
         try:
             try:
                 expected_key_size, filename, self.encrypted_str = self.read_encrypted_file()
-                #f = open(filename[:-5], 'wb')
+                f = open(filename[:-5], 'wb')
                 global global_var
                 for i in range(len(global_var)):
                     if global_var[i] == self.encrypted_str[i]:
@@ -415,8 +416,8 @@ class MainAppWindow:
                     self.decrypted_str = self._decrypt_str(self.Keys.private_key,
                                                             self.encrypted_str)
 
-                    self.DecryptOutputText.insert(INSERT, self.decrypted_str.decode('latin1'))
-                    #f.write(self.decrypted_str)
+                    self.DecryptOutputText.insert(INSERT, 'Encrypted text is saved in file: ' + filename[:-5])
+                    f.write(self.decrypted_str)
 
                 else:
                     self.DecryptOutputText.insert(INSERT, "Error: No encryption Keys selected")
