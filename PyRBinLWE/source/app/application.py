@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog as fd
 import sys
+import os
 sys.path.insert(0, '..\..\lib')
 #sys.path.insert(0, 'F:\MPA-MOK\PyRBinLWE\lib')
 
@@ -9,6 +10,7 @@ from mpamok import *
 #from PyRBinLWE.lib.mpamok import *
 
 #######################################################################
+global_var = None
 
 textwidth = 80
 
@@ -18,6 +20,7 @@ class MainAppWindow:
         self.encryptor.init()
         self.init_polynomial_a = Polynomial()
         self.Keys = None
+        self.key_size = None
         self.encrypted_str = None
         self.decrypted_str = None
         self.root = Tk()
@@ -62,7 +65,7 @@ class MainAppWindow:
         self.BtnEncrypt = ttk.Button(self.BtnEncryptFrame, text="Encrypt text", command=self.encrypt_txt)
         self.BtnEncrypt.grid(column=0, row=0, ipadx=textwidth/2, ipady=10, sticky=(N, W, E, S))
 
-        self.EncryptFileBtn = ttk.Button(self.BtnEncryptFrame, text="Encrypt file", command=None)
+        self.EncryptFileBtn = ttk.Button(self.BtnEncryptFrame, text="Encrypt file", command=self.encrypt_file)
         self.EncryptFileBtn.grid(column=1, row=0, ipadx=textwidth/2, ipady=10, sticky=(N, W, E, S))
 
         self.input_frame = ttk.Frame(self.BtnEncryptFrame, padding="3 3 3 3")
@@ -89,7 +92,7 @@ class MainAppWindow:
         self.BtnDecrypt = ttk.Button(self.BtnDecryptFrame, text="Decrypt text", command=self.decrypt_txt)
         self.BtnDecrypt.grid(column=0, row=0, ipadx=textwidth/2, ipady=10, sticky=(N, W, E, S))
 
-        self.DecryptFileBtn = ttk.Button(self.BtnDecryptFrame, text="Decrypt file", command=None)
+        self.DecryptFileBtn = ttk.Button(self.BtnDecryptFrame, text="Decrypt file", command=self.decrypt_file)
         self.DecryptFileBtn.grid(column=1, row=0, ipadx=textwidth/2, ipady=10, sticky=(N, W, E, S))
 
         self.output_frame2 = ttk.Frame(self.mainframe, padding="3 3 3 3")
@@ -124,19 +127,18 @@ class MainAppWindow:
         self.root.mainloop()
 
     def generate_new_keys(self):
-        self.init_polynomial_a.random_init()
-        self.Keys = self.encryptor.key_generator(self.init_polynomial_a)
-        key_str = self.Keys.print_bytes()#.decode('latin-1')
         self.tKey.delete('1.0', END)
-        #self.tKey['state'] = 'enabled'
-        self.tKey.insert(INSERT, "Initial polynomial a:\n")
-        self.tKey.insert(INSERT, self.init_polynomial_a.print_bytes())
-        self.tKey.insert(INSERT, key_str)
+        try:
+            self.init_polynomial_a.random_init()
+            self.Keys = self.encryptor.key_generator(self.init_polynomial_a)
+            key_str = self.Keys.print_bytes()#.decode('latin-1')
+            #self.tKey['state'] = 'enabled'
+            self.tKey.insert(INSERT, "Initial polynomial a:\n")
+            self.tKey.insert(INSERT, self.init_polynomial_a.print_bytes() + b'\n')
+            self.tKey.insert(INSERT, key_str)
+        except:
+            self.tKey.insert(INSERT, "Error: Unexpected error")
         #self.tKey['state'] = 'disabled'
-
-    def open_file_wrie(self):
-        filename = fd.askopenfilename()
-        f = open(filename,'wb')
 
     def save_keys_to_file(self):
         filetype1 = (
@@ -147,36 +149,42 @@ class MainAppWindow:
             ('private key files', '*.private'),
             ('All files', '*.*')
         )
-        if self.Keys != None: #try ... finally ...
-            filename_public = fd.asksaveasfilename(
-                title='Save public key file',
-                initialdir='.',
-                filetypes=filetype1,
-                defaultextension='.public')
-            f_public = open(filename_public, 'wb')
+        if self.Keys != None:
+            f_public = None
+            f_private = None
+            try:
 
-            filename_private = fd.asksaveasfilename(
-                title='Save private key file',
-                initialdir='.',
-                filetypes=filetype2,
-                defaultextension='.private')
-            f_private = open(filename_private, 'wb')
+                filename_public = fd.asksaveasfilename(
+                    title='Save public key file',
+                    initialdir='.',
+                    filetypes=filetype1,
+                    defaultextension='.public')
+                f_public = open(filename_public, 'wb')
 
-            public_poly_size = self.Keys.public_key.get_poly_mod()
+                filename_private = fd.asksaveasfilename(
+                    title='Save private key file',
+                    initialdir='.',
+                    filetypes=filetype2,
+                    defaultextension='.private')
+                f_private = open(filename_private, 'wb')
 
-            f_public.write(public_poly_size.to_bytes(2, 'big'))
-            f_public.write(b'\n'+self.Keys.public_key.to_bytes())
-            f_public.write(self.init_polynomial_a.to_bytes())
+                public_poly_size = self.Keys.public_key.get_poly_mod()
 
-            f_private.write(public_poly_size.to_bytes(2,'big'))
-            f_private.write(b'\n' + self.Keys.private_key.to_bytes())
+                f_public.write(public_poly_size.to_bytes(2, 'big'))
+                f_public.write(b'\n'+self.Keys.public_key.to_bytes())
+                f_public.write(self.init_polynomial_a.to_bytes())
 
-            self.tKey.delete('1.0', END)
-            # self.tKey['state'] = 'enabled'
-            self.tKey.insert(INSERT, 'Keys are saved in files: \n' + filename_public + '\n' + filename_private)
+                f_private.write(public_poly_size.to_bytes(2,'big'))
+                f_private.write(b'\n' + self.Keys.private_key.to_bytes())
 
-            f_public.close()
-            f_private.close()
+                self.tKey.delete('1.0', END)
+                # self.tKey['state'] = 'enabled'
+                self.tKey.insert(INSERT, 'Keys are saved in files: \n' + filename_public + '\n' + filename_private)
+            finally:
+                if f_public != None:
+                    f_public.close()
+                if f_private != None:
+                    f_private.close()
         else:
             self.tKey.insert(INSERT, 'There is no Keys to save')
         #print(self.Keys.private_key.to_string())
@@ -192,47 +200,51 @@ class MainAppWindow:
             ('private key files', '*.private'),
             ('All files', '*.*')
         )
+        f_public = None
+        f_private = None
+        try:
+            filename_public = fd.askopenfilename(
+                title='Save public key file',
+                initialdir='.',
+                filetypes=filetype1,
+                defaultextension='.public')
+            f_public = open(filename_public, 'rb')
 
-        filename_public = fd.askopenfilename(
-            title='Save public key file',
-            initialdir='.',
-            filetypes=filetype1,
-            defaultextension='.public')
-        f_public = open(filename_public, 'rb')
+            filename_private = fd.askopenfilename(
+                title='Save private key file',
+                initialdir='.',
+                filetypes=filetype2,
+                defaultextension='.private')
+            f_private = open(filename_private, 'rb')
 
-        filename_private = fd.askopenfilename(
-            title='Save private key file',
-            initialdir='.',
-            filetypes=filetype2,
-            defaultextension='.private')
-        f_private = open(filename_private, 'rb')
+            # f_public = open('key.public', 'rb')
+            # f_private = open('key.private', 'rb')
+            self.Keys = KeyRing()
 
-        # f_public = open('key.public', 'rb')
-        # f_private = open('key.private', 'rb')
-        self.Keys = KeyRing()
+            public_key_poly_size = int.from_bytes(f_public.read(2), 'big')
+            f_public.read(1)
+            pub_key_str = f_public.read(public_key_poly_size)
+            self.Keys.public_key.init_str(pub_key_str,public_key_poly_size)
+            a_str = f_public.read(public_key_poly_size)
+            self.init_polynomial_a.init_str(a_str, public_key_poly_size)
 
-        public_key_poly_size = int.from_bytes(f_public.read(2), 'big')
-        f_public.read(1)
-        pub_key_str = f_public.read(public_key_poly_size)
-        self.Keys.public_key.init_str(pub_key_str,public_key_poly_size)
-        a_str = f_public.read(public_key_poly_size)
-        self.init_polynomial_a.init_str(a_str, public_key_poly_size)
+            private_key_poly_size = int.from_bytes(f_private.read(2), 'big')
+            f_private.read(1)
+            prive_key_str = f_private.read()
+            #print(prive_key_str)
+            self.Keys.private_key.init_str(prive_key_str, private_key_poly_size)
 
-        private_key_poly_size = int.from_bytes(f_private.read(2), 'big')
-        f_private.read(1)
-        prive_key_str = f_private.read()
-        #print(prive_key_str)
-        self.Keys.private_key.init_str(prive_key_str, private_key_poly_size)
-
-        key_str = self.Keys.print_bytes()#.decode('latin-1')
-        self.tKey.delete('1.0', END)
-        #self.tKey['state'] = 'enabled'
-        self.tKey.insert(INSERT, "Initial polynomial a:\n")
-        self.tKey.insert(INSERT, self.init_polynomial_a.print_bytes())
-        self.tKey.insert(INSERT, key_str)
-
-        f_public.close()
-        f_private.close()
+            key_str = self.Keys.print_bytes()#.decode('latin-1')
+            self.tKey.delete('1.0', END)
+            #self.tKey['state'] = 'enabled'
+            self.tKey.insert(INSERT, "Initial polynomial a:\n")
+            self.tKey.insert(INSERT, self.init_polynomial_a.print_bytes() + b'\n')
+            self.tKey.insert(INSERT, key_str)
+        finally:
+            if f_public != None:
+                f_public.close()
+            if f_private != None:
+                f_private.close()
 
         # if old_keys.public_key == self.Keys.public_key:
         #     self.tKey.insert(INSERT, 'public key = OK\n')
@@ -249,61 +261,170 @@ class MainAppWindow:
         m.init(0, a_init.get_poly_mod())
         block_size = a_init.get_poly_mod() // 8
         block_num = len(str_to_enc) // block_size
+        if block_num == 0:
+            block_num = 1
         vec = list()
         i = 0
-        for j in range(block_num+1):
+        for j in range(block_num):
             m.init_str(str_to_enc[i:i+block_size])
             vec.append(self.encryptor.encrypt(public_key, m, a_init))
             i += block_size
         return vec
 
     def _decrypt_str(self, private_key, cipher_text_list):
-        res = str()
+        res = bytes()
         m = BinPolynomial()
         m.init(0, private_key.get_poly_mod())
         for cipher_obj in cipher_text_list:
             m = self.encryptor.decrypt(private_key, cipher_obj)
-            res += m.to_bytes().decode('latin1')
+            res += m.to_bytes()
         return res
 
     def encrypt_txt(self):
         input_str = self.input_text.get()
         self.EncryptOutputText.delete('1.0', END)
-        if self.Keys != None:
-            self.encrypted_str = self._encrypt_str(self.Keys.public_key,
-                                                self.init_polynomial_a,
-                                                input_str)
-            for cipher_obj in self.encrypted_str:
-                output_str = cipher_obj.print_bytes()
-                # self.tKey['state'] = 'enabled'
-                self.EncryptOutputText.insert(INSERT, output_str)
+        try:
+            if self.Keys != None:
+                self.encrypted_str = self._encrypt_str(self.Keys.public_key,
+                                                    self.init_polynomial_a,
+                                                    input_str)
 
-        else:
-            self.EncryptOutputText.insert(INSERT, "Error: No encryption Keys selected")
+                for cipher_obj in self.encrypted_str:
+                    output_str = cipher_obj.print_bytes()
+                    self.EncryptOutputText.insert(INSERT, output_str)
+            else:
+                self.EncryptOutputText.insert(INSERT, "Error: No encryption Keys selected")
+        except:
+            self.EncryptOutputText.insert(INSERT, "Error: Unexpected error")
 
     def decrypt_txt(self):
-        #input_str = self.input_text.get()
-        self.DecryptOutputText.delete('1.0', END)
-        if self.Keys != None and self.encrypted_str != None:
-            self.decrypted_str = self._decrypt_str(self.Keys.private_key,
-                                                   self.encrypted_str)
-            self.DecryptOutputText.insert(INSERT, self.decrypted_str)
-        elif self.Keys == None :
-            self.DecryptOutputText.insert(INSERT, "Error: No encryption Keys selected")
-        elif self.encrypted_str == None:
-            self.DecryptOutputText.insert(INSERT, "Error: No encrypted text")
+        try:
+            #input_str = self.input_text.get()
+            self.DecryptOutputText.delete('1.0', END)
+            if self.Keys != None and self.encrypted_str != None:
+                self.decrypted_str = self._decrypt_str(self.Keys.private_key,
+                                                       self.encrypted_str)
+                self.DecryptOutputText.insert(INSERT, self.decrypted_str.decode('latin1'))
+            elif self.Keys == None :
+                self.DecryptOutputText.insert(INSERT, "Error: No encryption Keys selected")
+            elif self.encrypted_str == None:
+                self.DecryptOutputText.insert(INSERT, "Error: No encrypted text")
+        except:
+            self.DecryptOutputText.insert(INSERT, "Error: Unexpected error")
 
     def encrypt_file(self):
+        self.EncryptOutputText.delete('1.0', END)
         filetype = (
             ('All files', '*.*')
         )
-        filename_public = fd.askopenfilename(
+        filename = fd.askopenfilename(
             title='Open file',
             initialdir='.',
-            filetypes=filetype)
-        f_public = open(filename_public, 'rb')
+            #filetypes=filetype
+        )
+        f = None
+        f_enc = None
+        try:
+            try:
+                file_size = os.path.getsize(filename)
+                f = open(filename, 'rb')
+                file_str = f.read(file_size)
+                f_enc = open(filename+'.blwe', 'wb')
+                if self.Keys != None:
+                    self.encrypted_str = self._encrypt_str(self.Keys.public_key,
+                                                       self.init_polynomial_a,
+                                                       file_str)
 
+                    public_poly_size = self.Keys.public_key.get_poly_mod()
 
+                    self.EncryptOutputText.insert(INSERT, 'Encrypted text is saved in file: ' + filename +'.blwe \n\n')
+
+                    f_enc.write(public_poly_size.to_bytes(2, 'big'))
+                    f_enc.write(b'\n')
+                    output_str = bytes()
+                    bytes_str = bytes()
+                    for cipher_obj in self.encrypted_str:
+                        output_str += cipher_obj.print_bytes()
+                        bytes_str += cipher_obj.to_bytes()
+
+                    self.EncryptOutputText.insert(INSERT, output_str.decode('latin1'))
+                    global global_var
+                    global_var = self.encrypted_str
+                    f_enc.write(bytes_str)
+
+                else:
+                    self.EncryptOutputText.insert(INSERT, "Error: No encryption Keys selected")
+            except:
+                self.EncryptOutputText.insert(INSERT, "Error: Unexpected error")
+        finally:
+            if f != None:
+                f.close()
+            if f_enc != None:
+                f_enc.close()
+
+    def read_encrypted_file(self):
+        filetype = (
+            ('Encrypted', '*.blwe'),
+            ('All files', '*.*')
+        )
+        filename = fd.askopenfilename(
+            title='Open file',
+            initialdir='.',
+            filetypes=filetype
+        )
+        f_enc = None
+        vec = None
+        expected_key_size = 0
+        try:
+            global global_var
+            m = CipherText()
+            file_size = os.path.getsize(filename)
+            f_enc = open(filename, 'rb')
+            file_str = f_enc.read(file_size)
+            expected_key_size = int.from_bytes(file_str[:2], 'big')
+            m.c1.init(0, expected_key_size)
+            m.c2.init(0, expected_key_size)
+            block_size = (expected_key_size)
+            block_num = (file_size-3) // block_size
+            vec = list()
+            i = 3
+            for j in range(block_num//2):
+                m.c1.init_str(file_str[i:i + block_size])
+                i += block_size
+                m.c2.init_str(file_str[i:i + block_size])
+                i += block_size
+                vec.append(m)
+        finally:
+            if f_enc != None:
+                f_enc.close()
+        return expected_key_size, filename, vec
+
+    def decrypt_file(self):
+        self.DecryptOutputText.delete('1.0', END)
+        f = None
+        try:
+            try:
+                expected_key_size, filename, self.encrypted_str = self.read_encrypted_file()
+                #f = open(filename[:-5], 'wb')
+                global global_var
+                for i in range(len(global_var)):
+                    if global_var[i] == self.encrypted_str[i]:
+                        print("OK")
+
+                if self.Keys != None and self.Keys.private_key.get_poly_mod() == expected_key_size:
+                    self.decrypted_str = self._decrypt_str(self.Keys.private_key,
+                                                            self.encrypted_str)
+
+                    self.DecryptOutputText.insert(INSERT, self.decrypted_str.decode('latin1'))
+                    #f.write(self.decrypted_str)
+
+                else:
+                    self.DecryptOutputText.insert(INSERT, "Error: No encryption Keys selected")
+            except:
+                self.DecryptOutputText.insert(INSERT, "Error: Unexpected error")
+        finally:
+            if f != None:
+                f.close()
 
 if __name__ == "__main__":
     app_win = MainAppWindow()

@@ -79,12 +79,12 @@ public:
 	}
 
 	std::string to_string() const {
-		std::string result = c1.to_string() + '\n' + c2.to_string();
+		std::string result = c1.to_string() + c2.to_string();
 		return result;
 	}
 
 	std::string print_string() const {
-		std::string result = "\nCipher text:\n";
+		std::string result = "\nCipher text block:\n";
 		result += "c1 = " + c1.print_string() + '\n';
 		result += "c2 = " + c2.print_string() + '\n';
 		return result;
